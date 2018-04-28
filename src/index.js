@@ -13,9 +13,15 @@ const intialState = { // Taskの初期状態
 function tasksReducer(state = intialState, action) {
   switch (action.type) {
     case 'ADD_TASK':
+      // Using Object.assign()
+      // return Object.assign({}, state, {
+      //   tasks: action.payload.task
+      // })
+
+      // Using Object Spread Operator
       return {
         ...state,
-        tasks: state.tasks.concat([action.task])
+        tasks: state.tasks.concat([action.payload.task])
       };
     default:
       return state;
@@ -36,7 +42,7 @@ const store = createStore(tasksReducer);
 // Actionの定義
 // Actionの標準化による定義（Flux Standard Action by Facebook Corp.）
 // Actionはプレーンなオブジェクトで、typeプロパティが必須
-// オプソンとして以下のプロパティも設定できる
+// オプションとして以下のプロパティも設定できる
 // payload: Actionに伴うデータとして利用できる。オブジェクト形式で扱う。errorプロパティがtrueの場合はErrorオブジェクトを返すべき
 // error: エラーを表現したい場合はtrueにする。それに伴ってpayloadの中身も変化させる。
 // meta: payloadとは別に他の情報をActionとして含めたい場合はmetaを使う
