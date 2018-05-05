@@ -38,6 +38,22 @@ function tasksReducer(state = intialState, action) {
  */
 const store = createStore(tasksReducer);
 
+/**
+ * dispachによって状態が変わると呼ばれるコールバック関数
+ * @returns undefined
+ */
+function handleChange() {
+  console.log(store.getState()); //storeの現在の状態
+}
+
+/**
+ * subscribeを解除するunsubscribeを定義
+ * @param {function} handleChange
+ * @returns {function} unsubscribe
+ */
+const unsubscribe = store.subscribe(handleChange)
+// unsubscribe()を実行するとsubscribeが解除される
+// unsubscribe()
 
 // Actionの定義
 // Actionの標準化による定義（Flux Standard Action by Facebook Corp.）
@@ -68,4 +84,4 @@ const addTask = (task) => ({
  */
 store.dispatch(addTask('Storeを学ぶ'));
 
-console.log(store.getState()); // storeの現在の状態
+//console.log(store.getState()); // storeの現在の状態
