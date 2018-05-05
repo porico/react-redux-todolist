@@ -1,16 +1,16 @@
-import { createStore } from 'redux';
+import { createStore, replaceReducer } from 'redux';
 
 const intialState = { // Taskの初期状態
   tasks: []
 };
 
 /**
- * tasksReducerの定義
+ * addReducerの定義
  * @param {object} state 現在の状態を示す。初期状態としてintialStateを代入する。
  * @param {object} action 操作内容
  * @returns {object} state
  */
-function tasksReducer(state = intialState, action) {
+function addReducer(state = intialState, action) {
   switch (action.type) {
     case 'ADD_TASK':
       // Using Object.assign()
@@ -29,14 +29,30 @@ function tasksReducer(state = intialState, action) {
 }
 
 /**
+ * resetReducerの定義
+ * 
+ */
+function resetReducer (state = intialState, action) {
+  switch (action.type) {
+    case 'RESET_TASK':
+      return {
+        ...state,
+        tasks: []
+      };
+    default:
+      return state;
+  };
+}
+
+/**
  * Storeの生成
  * アプリケーション全体の状態ツリーを管理する
  * Storeはアプリケーション内で一つだけ
- * @param {function} tasksReducer Reducer
+ * @param {function} addReducer Reducer
  * @param {object} [preloadedState] オプション：Storeの初期値
  * @param {object} [enhancer] オプション：Storeの機能を拡張するためのサードパーティ製のツールを指定可能。Reduxに唯一同梱されているapplyMiddleware()を指定することもできる。
  */
-const store = createStore(tasksReducer);
+const store = createStore(addReducer);
 
 /**
  * dispachによって状態が変わると呼ばれるコールバック関数
@@ -78,10 +94,23 @@ const addTask = (task) => ({
   }
 });
 
+const resetTask = () => ({
+  type: 'RESET_TASK'
+})
+
 /**
  * Actionの発行
  * 
  */
 store.dispatch(addTask('Storeを学ぶ'));
 
-//console.log(store.getState()); // storeの現在の状態
+store.replaceReducer(resetReducer); // ReducerをresetReducerに入れ替える。これだけではStoreの状態は変化しない
+
+store.dispatch(resetTask()); // このdispachにより、Storeの中身がリセットされる
+
+store.dispatch(addTask('Reducerを学ぶ')); //Storeに関連付けられているReducerはresetReducerになっているので、ADD_TASKがdispatchされても何も起こらない
+
+// replaceReducerはReducerを動的にロードしたい場合に使用するとよいが、
+// 複数のReducerを定義するときはcombineReducerでReducerを１つにまとめて関連づけるとよい
+// combineReducerはStoreを擬似的に分割できる
+
