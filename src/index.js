@@ -1,17 +1,25 @@
-import { createStore, replaceReducer } from 'redux';
+import React from 'react';
+import { render } from 'react-dom';
+import { createStore } from 'redux';
 
 const intialState = { // Taskの初期状態
+  task: '',
   tasks: []
 };
 
 /**
- * addReducerの定義
+ * tasksReducerの定義
  * @param {object} state 現在の状態を示す。初期状態としてintialStateを代入する。
  * @param {object} action 操作内容
  * @returns {object} state
  */
-function addReducer(state = intialState, action) {
+function tasksReducer(state = intialState, action) {
   switch (action.type) {
+    case 'INPUT_TASK':
+      return {
+        ...state,
+        task: action.payload.task
+      };
     case 'ADD_TASK':
       // Using Object.assign()
       // return Object.assign({}, state, {
@@ -32,42 +40,42 @@ function addReducer(state = intialState, action) {
  * resetReducerの定義
  * 
  */
-function resetReducer (state = intialState, action) {
-  switch (action.type) {
-    case 'RESET_TASK':
-      return {
-        ...state,
-        tasks: []
-      };
-    default:
-      return state;
-  };
-}
+// function resetReducer (state = intialState, action) {
+//   switch (action.type) {
+//     case 'RESET_TASK':
+//       return {
+//         ...state,
+//         tasks: []
+//       };
+//     default:
+//       return state;
+//   };
+// }
 
 /**
  * Storeの生成
  * アプリケーション全体の状態ツリーを管理する
  * Storeはアプリケーション内で一つだけ
- * @param {function} addReducer Reducer
+ * @param {function} tasksReducer Reducer
  * @param {object} [preloadedState] オプション：Storeの初期値
  * @param {object} [enhancer] オプション：Storeの機能を拡張するためのサードパーティ製のツールを指定可能。Reduxに唯一同梱されているapplyMiddleware()を指定することもできる。
  */
-const store = createStore(addReducer);
+const store = createStore(tasksReducer);
 
-/**
- * dispachによって状態が変わると呼ばれるコールバック関数
- * @returns undefined
- */
-function handleChange() {
-  console.log(store.getState()); //storeの現在の状態
-}
+// /**
+//  * dispachによって状態が変わると呼ばれるコールバック関数
+//  * @returns undefined
+//  */
+// function handleChange() {
+//   console.log(store.getState()); //storeの現在の状態
+// }
 
-/**
- * subscribeを解除するunsubscribeを定義
- * @param {function} handleChange
- * @returns {function} unsubscribe
- */
-const unsubscribe = store.subscribe(handleChange)
+// /**
+//  * subscribeを解除するunsubscribeを定義
+//  * @param {function} handleChange
+//  * @returns {function} unsubscribe
+//  */
+// const unsubscribe = store.subscribe(handleChange)
 // unsubscribe()を実行するとsubscribeが解除される
 // unsubscribe()
 
@@ -87,6 +95,14 @@ const unsubscribe = store.subscribe(handleChange)
  * @param {object} task タスクとして追加したいtask
  * @returns {object} Actionオブジェクト
  */
+
+const inputTask = (task) => ({
+  type: 'INPUT_TASK',
+  payload: {
+    task
+  }
+})
+
 const addTask = (task) => ({
   type: 'ADD_TASK',
   payload: {
@@ -94,23 +110,63 @@ const addTask = (task) => ({
   }
 });
 
-const resetTask = () => ({
-  type: 'RESET_TASK'
-})
+// const resetTask = () => ({
+//   type: 'RESET_TASK'
+// })
+
+// /**
+//  * Actionの発行
+//  * 
+//  */
+// store.dispatch(addTask('Storeを学ぶ'));
+
+// store.replaceReducer(resetReducer); // ReducerをresetReducerに入れ替える。これだけではStoreの状態は変化しない
+
+// store.dispatch(resetTask()); // このdispachにより、Storeの中身がリセットされる
+
+// store.dispatch(addTask('Reducerを学ぶ')); //Storeに関連付けられているReducerはresetReducerになっているので、ADD_TASKがdispatchされても何も起こらない
+
+// // replaceReducerはReducerを動的にロードしたい場合に使用するとよいが、
+// // 複数のReducerを定義するときはcombineReducerでReducerを１つにまとめて関連づけるとよい
+// // combineReducerはStoreを擬似的に分割できる
 
 /**
- * Actionの発行
- * 
+ * todoListコンポーネント
+ * @param {*} store
+ * @returns {function} Reactコンポーネント
  */
-store.dispatch(addTask('Storeを学ぶ'));
+function TodoApp({ store }) {
+  const {task, tasks} = store.getState();
+  return (
+    <div>
+      <input type="text" onChange={(e) => store.dispatch(inputTask(e.target.value))} />
+      <input type="button" value="add" onClick={() => store.dispatch(addTask(task))} />
 
-store.replaceReducer(resetReducer); // ReducerをresetReducerに入れ替える。これだけではStoreの状態は変化しない
+      <ul>
+        {
+          tasks.map(function(item, i) {
+            return (
+              <li key={i}>{item}</li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  );
+}
 
-store.dispatch(resetTask()); // このdispachにより、Storeの中身がリセットされる
+/**
+ * Reactコンポーネントを描画させるための関数
+ * @param {*} store 
+ */
+function renderApp(store) {
+  render(
+    <TodoApp store={store} />,
+    document.getElementById('root')
+  );
+}
 
-store.dispatch(addTask('Reducerを学ぶ')); //Storeに関連付けられているReducerはresetReducerになっているので、ADD_TASKがdispatchされても何も起こらない
-
-// replaceReducerはReducerを動的にロードしたい場合に使用するとよいが、
-// 複数のReducerを定義するときはcombineReducerでReducerを１つにまとめて関連づけるとよい
-// combineReducerはStoreを擬似的に分割できる
-
+/**
+ * Viewを描画する関数
+ */
+store.subscribe(() => renderApp(store));
