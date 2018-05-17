@@ -168,5 +168,12 @@ function renderApp(store) {
 
 /**
  * Viewを描画する関数
+ * @param {*} store 
  */
 store.subscribe(() => renderApp(store));
+
+/**
+ * 関数実行
+ * @param {*} store 
+ */
+renderApp(store);
