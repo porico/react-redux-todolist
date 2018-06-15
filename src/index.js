@@ -1,56 +1,9 @@
 import React from 'react';
 import { render } from 'react-dom';
+import tasksReducer from './reducers/tasks';
+import TodoApp from './components/TodoApp';
 import { createStore } from 'redux';
 
-const intialState = { // Taskの初期状態
-  task: '',
-  tasks: []
-};
-
-/**
- * tasksReducerの定義
- * @param {object} state 現在の状態を示す。初期状態としてintialStateを代入する。
- * @param {object} action 操作内容
- * @returns {object} state
- */
-function tasksReducer(state = intialState, action) {
-  switch (action.type) {
-    case 'INPUT_TASK':
-      return {
-        ...state,
-        task: action.payload.task
-      };
-    case 'ADD_TASK':
-      // Using Object.assign()
-      // return Object.assign({}, state, {
-      //   tasks: action.payload.task
-      // })
-
-      // Using Object Spread Operator
-      return {
-        ...state,
-        tasks: state.tasks.concat([action.payload.task])
-      };
-    default:
-      return state;
-  };
-}
-
-/**
- * resetReducerの定義
- * 
- */
-// function resetReducer (state = intialState, action) {
-//   switch (action.type) {
-//     case 'RESET_TASK':
-//       return {
-//         ...state,
-//         tasks: []
-//       };
-//     default:
-//       return state;
-//   };
-// }
 
 /**
  * Storeの生成
@@ -79,40 +32,6 @@ const store = createStore(tasksReducer);
 // unsubscribe()を実行するとsubscribeが解除される
 // unsubscribe()
 
-// Actionの定義
-// Actionの標準化による定義（Flux Standard Action by Facebook Corp.）
-// Actionはプレーンなオブジェクトで、typeプロパティが必須
-// オプションとして以下のプロパティも設定できる
-// payload: Actionに伴うデータとして利用できる。オブジェクト形式で扱う。errorプロパティがtrueの場合はErrorオブジェクトを返すべき
-// error: エラーを表現したい場合はtrueにする。それに伴ってpayloadの中身も変化させる。
-// meta: payloadとは別に他の情報をActionとして含めたい場合はmetaを使う
-
-
-// ActionCreator を定義する
-
-/**
- * Actionを生成する関数の定義（Action Creator）
- * @param {object} task タスクとして追加したいtask
- * @returns {object} Actionオブジェクト
- */
-
-const inputTask = (task) => ({
-  type: 'INPUT_TASK',
-  payload: {
-    task
-  }
-})
-
-const addTask = (task) => ({
-  type: 'ADD_TASK',
-  payload: {
-    task
-  }
-});
-
-// const resetTask = () => ({
-//   type: 'RESET_TASK'
-// })
 
 // /**
 //  * Actionの発行
@@ -129,31 +48,6 @@ const addTask = (task) => ({
 // // replaceReducerはReducerを動的にロードしたい場合に使用するとよいが、
 // // 複数のReducerを定義するときはcombineReducerでReducerを１つにまとめて関連づけるとよい
 // // combineReducerはStoreを擬似的に分割できる
-
-/**
- * todoListコンポーネント
- * @param {*} store
- * @returns {function} Reactコンポーネント
- */
-function TodoApp({ store }) {
-  const {task, tasks} = store.getState();
-  return (
-    <div>
-      <input type="text" onChange={(e) => store.dispatch(inputTask(e.target.value))} />
-      <input type="button" value="add" onClick={() => store.dispatch(addTask(task))} />
-
-      <ul>
-        {
-          tasks.map(function(item, i) {
-            return (
-              <li key={i}>{item}</li>
-            );
-          })
-        }
-      </ul>
-    </div>
-  );
-}
 
 /**
  * Reactコンポーネントを描画させるための関数
